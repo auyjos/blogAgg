@@ -1,0 +1,18 @@
+{
+  "name": "blog-agg",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+ "scripts": {
+    "start": "tsx ./src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^24.0.3",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}
