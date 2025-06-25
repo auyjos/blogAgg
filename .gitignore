@@ -38,3 +38,20 @@ Thumbs.db
 
 # Optional npm cache directory
 .npm
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+
+# Config files
+.gatorconfig.json
+
+# Coverage directory
+coverage/
+
+# Debug logs
+debug/
+src/lib/db/migration/0000_stale_chimera.sql
+src/lib/db/migration/meta/_journal.json
+src/lib/db/migration/meta/0000_snapshot.json
