@@ -1,7 +1,7 @@
 import { db } from "../index";
 import { users } from "../schema";
-import { type InferSelectModel, type InferInsertModel, eq } from "drizzle-orm";
-
+import { type InferSelectModel, type InferInsertModel, eq, sql } from "drizzle-orm";
+import { firstOrUndefined } from "./utils";
 export type User = InferSelectModel<typeof users>
 
 export type NewUser = InferInsertModel<typeof users>;
@@ -16,10 +16,8 @@ export async function createUser(name: string): Promise<User> {
 }
 
 export async function getUserByName(name: string): Promise<User | undefined> {
-
-    const [user] = await db.select().from(users).where(eq(users.name, name));
-    console.log("all users:", await db.select().from(users));
-    return user
+    const result = await db.select().from(users).where(eq(users.name, name));
+    return firstOrUndefined(result);
 
 }
 

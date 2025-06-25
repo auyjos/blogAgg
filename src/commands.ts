@@ -1,4 +1,5 @@
 import { readConfig, setUser } from "./config";
+import { createFeed, printFeed } from "./lib/db/queries/feeds";
 import { createUser, deleteAllUsers, getUserByName, getUsers } from "./lib/db/queries/users";
 export type CommandHandler = (cmdName: string, ...args: string[]) => Promise<void>;
 import { fetchFeed } from "./lib/rss";
@@ -90,4 +91,28 @@ export async function handlerAgg(cmdName: string, ...args: string[]) {
 
     const feed = await fetchFeed("https://www.wagslane.dev/index.xml")
     console.log(JSON.stringify(feed, null, 2))
+}
+
+
+export async function handlerAddFeed(cmdName: string, ...args: string[]) {
+    if (args.length < 2) {
+        throw new Error(`Usage: ${cmdName} <feed-name> <feed-url>`);
+    }
+    const [name, url] = args;
+
+    // 1. Who’s logged in?
+    const { currentUserName } = readConfig();
+    if (!currentUserName) {
+        throw new Error("No user logged in. Please `gator login <user>` first.");
+    }
+
+    const user = await getUserByName(currentUserName)
+    if (!user) {
+        throw new Error(
+            `Current user "${currentUserName}" not found in DB.`)
+    }
+
+    const feed = await createFeed(name, url, user.id)
+    printFeed(feed, user)
+
 }
