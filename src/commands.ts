@@ -8,6 +8,7 @@ import { fetchFeed } from "./lib/rss";
 import { parseDuration } from "./lib/parseDuration";
 import { scrapeFeeds } from "./lib/aggregator";
 import { resolve } from "path";
+import { getPostsForUser } from "./lib/db/queries/posts";
 
 export type CommandHandler = (cmdName: string, ...args: string[]) => Promise<void>;
 export type CommandsRegistry = Record<string, CommandHandler>
@@ -215,4 +216,30 @@ export async function handlerUnfollow(cmdName: string, user: User, ...args: stri
         throw new Error(`You are not following: ${url}`);
     }
     console.log(`✔ Unfollowed feed: ${url}`);
+}
+
+
+export async function handlerBrowse(cmdName: string, user: User, ...args: string[]) {
+
+    let limit = 2
+    if (args.length > 1) {
+        throw new Error(`Usage: ${cmdName} [limit]`);
+    }
+    if (args.length === 1) {
+        limit = parseInt(args[0], 10)
+        if (isNaN(limit) || limit < 1) {
+            throw new Error(`Invalid limit: ${args[0]}`);
+        }
+    }
+
+    const posts = await getPostsForUser(user.id, limit)
+    if (posts.length === 0) {
+        console.log("No posts available.");
+        return;
+    }
+    for (const p of posts) {
+        const date = p.publishedAt ? p.publishedAt.toISOString().split("T")[0] : "unknown"
+        console.log(`* [${date}] ${p.title} — ${p.url}`);
+
+    }
 }

@@ -1,6 +1,7 @@
 
 import { fetchFeed, RSSFeed } from "./rss";
 import { getNextFeedToFetch, markedFeedFetched } from "./db/queries/feeds";
+import { createPost } from "./db/queries/posts";
 
 export async function scrapeFeeds(): Promise<void> {
 
@@ -12,14 +13,30 @@ export async function scrapeFeeds(): Promise<void> {
 
     console.log(`⏳ Fetching ${feedRow.name} (${feedRow.url})…`);
 
-    try {
-        await markedFeedFetched(feedRow.id)
-        const parsed: RSSFeed = await fetchFeed(feedRow.url)
-        for (const item of parsed.channel.item) {
-            console.log(`• [${feedRow.name}] ${item.title}`);
-        }
-    } catch (error: any) {
-        console.error(`❌ Error scraping ${feedRow.url}:`, error.message);
-    }
+    await markedFeedFetched(feedRow.id)
 
+    const parsed: RSSFeed = await fetchFeed(feedRow.url)
+    for (const item of parsed.channel.item) {
+
+        let pubDate: Date | undefined;
+        // parse publication date if present (no variable assignment since it's unused)
+        try {
+            if (item.pubDate) {
+                pubDate = new Date(item.pubDate);
+            }
+        } catch (error: any) {
+            console.log(error.message);
+        }
+        const post = await createPost({
+            title: item.title,
+            url: item.link,
+            description: item.description,
+            publishedAt: pubDate ?? null,
+            feedId: feedRow.id,
+        })
+        if (post) {
+            console.log(`+ Saved post: ${post.title}`);
+        }
+
+    }
 }
