@@ -52,8 +52,4 @@ coverage/
 
 # Debug logs
 debug/
-src/lib/db/migration/0000_stale_chimera.sql
-src/lib/db/migration/meta/_journal.json
-src/lib/db/migration/meta/0000_snapshot.json
-src/lib/db/migration/0001_dry_peter_quill.sql
-src/lib/db/migration/meta/0001_snapshot.json
+migration

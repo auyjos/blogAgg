@@ -1,6 +1,11 @@
 
 import { setUser, readConfig } from "./config";
-import { CommandsRegistry, registerCommand, runCommand, handlerLogin, handlerRegister, handlerReset, handlerUsers, handlerAgg, handlerAddFeed } from "./commands";
+import {
+    CommandsRegistry, registerCommand, runCommand,
+    handlerLogin, handlerRegister,
+    handlerReset, handlerUsers, handlerAgg, handlerAddFeed, handlerListFeeds, handlerFollow, handlerFollowing, middleWareLoggedIn,
+    handlerUnfollow
+} from "./commands";
 async function main() {
     const registry: CommandsRegistry = {
     };
@@ -9,7 +14,12 @@ async function main() {
     registerCommand(registry, "reset", handlerReset)
     registerCommand(registry, "users", handlerUsers)
     registerCommand(registry, "agg", handlerAgg)
-    registerCommand(registry, "addfeed", handlerAddFeed);
+    registerCommand(registry, "addfeed", middleWareLoggedIn(handlerAddFeed));
+    registerCommand(registry, "feeds", handlerListFeeds)
+    registerCommand(registry, "agg", handlerAgg)
+    registerCommand(registry, "follow", middleWareLoggedIn(handlerFollow))
+    registerCommand(registry, "following", middleWareLoggedIn(handlerFollowing));
+    registerCommand(registry, "unfollow", middleWareLoggedIn(handlerUnfollow));
     const rawArgs = process.argv.slice(2)
 
     if (rawArgs.length === 0) {
@@ -26,8 +36,7 @@ async function main() {
         process.exit(1)
     }
 
-    const cfg = readConfig()
-    console.log("Current config: ", cfg)
+
     process.exit(0)
 }
 
